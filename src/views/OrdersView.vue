@@ -28,6 +28,7 @@
           </table>
           <div class="total">Total: {{ getCurrency(order.total) }}</div>
         </div>
+        <h3 v-show="orders.length === 0">Aún realizado ninguna orden</h3>
       </div>
     </b-row>
   </b-container>
