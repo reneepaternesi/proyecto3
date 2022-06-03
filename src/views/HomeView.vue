@@ -5,13 +5,8 @@
         v-for="product in products"
         :key="product.id"
         :product="product"
-        @delete-product="deleteProduct"
       />
-      <ProductCard
-        v-show="this.user.isAdmin"
-        :product="newProduct"
-        @add-to-cart="addProduct"
-      />
+      <ProductCard v-show="this.user.isAdmin" :product="newProduct" />
     </b-row>
   </b-container>
 </template>
@@ -42,12 +37,10 @@ export default {
   },
   methods: {
     addProduct() {
-      this.$emit("add-product", this.newProduct);
-    },
-    deleteProduct(id) {
-      this.$emit("delete-product", id);
+      this.addProduct(this.newProduct);
     },
     ...mapActions(["getProducts"]),
+    ...mapActions(["addProduct"]),
   },
   computed: {
     ...mapGetters(["products"]),
