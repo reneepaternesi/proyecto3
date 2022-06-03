@@ -139,12 +139,11 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "ProductView",
   props: {
-    id: String,
-    product: {},
-    sizes: [],
     isAdmin: Boolean,
   },
   data: () => ({
@@ -157,6 +156,15 @@ export default {
       priceBlured: false,
       imgBlured: false,
     },
+    sizes: [
+      { talle: 35, largo: 22.8 },
+      { talle: 36, largo: 23.5 },
+      { talle: 37, largo: 24.2 },
+      { talle: 38, largo: 24.8 },
+      { talle: 39, largo: 25.5 },
+      { talle: 40, largo: 26.2 },
+      { talle: 41, largo: 27 },
+    ],
   }),
   methods: {
     resetStatus() {
@@ -196,6 +204,12 @@ export default {
       } else {
         this.$emit("update-product", this.productToSave);
       }
+    },
+  },
+  computed: {
+    ...mapGetters(["productById"]),
+    product() {
+      return this.productById(this.$route.params.id);
     },
   },
   mounted() {

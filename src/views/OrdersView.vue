@@ -34,18 +34,28 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   name: "OrdersView",
-  props: {
-    orders: {},
+  async created() {
+    await this.getOrders(this.user.id)
+      .then()
+      .catch(
+        this.$bvToast.toast("Error", {
+          title: `No pudimos recuperar tu lista de ordenes, vuelve a intentarlo`,
+          variant: "danger",
+          solid: true,
+          noAutoHide: true,
+        })
+      );
   },
   methods: {
-    getOrders() {
-      this.$emit("get-orders");
-    },
+    ...mapActions(["getOrders"]),
   },
-  beforeMount() {
-    this.getOrders();
+  computed: {
+    ...mapGetters(["orders"]),
+    ...mapGetters(["user"]),
   },
 };
 </script>

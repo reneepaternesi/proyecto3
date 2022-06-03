@@ -22,7 +22,7 @@
           Ver Producto
         </router-link>
         <b-button
-          v-show="isAdmin"
+          v-show="this.user.isAdmin"
           class="add-to-cart shadow"
           href="#"
           @click="deleteProduct(product.id)"
@@ -35,16 +35,20 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "ProductCard",
   props: {
     product: {},
-    isAdmin: Boolean,
   },
   methods: {
     deleteProduct(id) {
       this.$emit("delete-product", id);
     },
+  },
+  computed: {
+    ...mapGetters(["user"]),
   },
 };
 </script>

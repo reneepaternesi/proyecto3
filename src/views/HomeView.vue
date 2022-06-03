@@ -6,10 +6,9 @@
         :key="product.id"
         :product="product"
         @delete-product="deleteProduct"
-        :isAdmin="isAdmin"
       />
       <ProductCard
-        v-show="isAdmin"
+        v-show="this.user.isAdmin"
         :product="newProduct"
         @add-to-cart="addProduct"
       />
@@ -19,12 +18,12 @@
 
 <script>
 import ProductCard from "../components/products/ProductCard.vue";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "HomeView",
-  props: {
-    products: [],
-    isAdmin: Boolean,
+  async created() {
+    await this.getProducts();
   },
   data: () => ({
     newProduct: {
@@ -48,6 +47,11 @@ export default {
     deleteProduct(id) {
       this.$emit("delete-product", id);
     },
+    ...mapActions(["getProducts"]),
+  },
+  computed: {
+    ...mapGetters(["products"]),
+    ...mapGetters(["user"]),
   },
 };
 </script>
