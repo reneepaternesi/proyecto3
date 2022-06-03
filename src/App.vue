@@ -2,12 +2,7 @@
   <div id="app">
     <NavBar :itemsAdded="getItemsAdded()" :user="user" @log-out="logOut" />
     <router-view
-      :products="products"
       @add-to-cart="addToCart"
-      :sizes="sizes"
-      :isAdmin="user.isAdmin"
-      :orders="orders"
-      @get-orders="getOrders"
       @update-product="updateProduct"
       @add-product="addProduct"
       @delete-product="deleteProduct"
@@ -17,12 +12,7 @@
       @remove-from-cart="removeFromCart"
       @create-order="createOrder"
     />
-    <LoginModal
-      :isLoggedIn="isLoggedIn"
-      :hasAccount="hasAccount"
-      @log-in="logIn"
-      @create-account="createAccount"
-    />
+    <LoginModal @create-account="createAccount" />
   </div>
 </template>
 
@@ -31,6 +21,7 @@ import apiServices from "./services/services";
 import NavBar from "./components/NavBar.vue";
 import CartModal from "./components/cart/CartModal.vue";
 import LoginModal from "./components/LoginModal.vue";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "App",
@@ -38,19 +29,9 @@ export default {
     products: [],
     users: [],
     orders: [],
-    sizes: [
-      { talle: 35, largo: 22.8 },
-      { talle: 36, largo: 23.5 },
-      { talle: 37, largo: 24.2 },
-      { talle: 38, largo: 24.8 },
-      { talle: 39, largo: 25.5 },
-      { talle: 40, largo: 26.2 },
-      { talle: 41, largo: 27 },
-    ],
     cart: [],
     isLoggedIn: false,
     hasAccount: true,
-    user: {},
   }),
   components: { NavBar, CartModal, LoginModal },
   mounted() {
@@ -58,7 +39,11 @@ export default {
     this.getUsers();
     this.getCart();
   },
+  computed: {
+    ...mapGetters(["user"]),
+  },
   methods: {
+    ...mapActions(["logIn"]),
     async getProducts() {
       try {
         this.products = await apiServices.getProducts();
@@ -87,33 +72,6 @@ export default {
     },
     getCart() {
       this.cart = JSON.parse(localStorage.getItem("cart")) || [];
-    },
-    logIn(form) {
-      this.user = {};
-      this.isLoggedIn = false;
-      this.hasAccount = false;
-      this.user = this.users.find(
-        (user) => user.user === form.user && user.password === form.password
-      );
-      if (!this.user) {
-        this.hasAccount = false;
-        this.$bvToast.toast("Info", {
-          title: "No existe cuenta para ese usuario y contraseña. Crea una!",
-          variant: "info",
-          solid: true,
-        });
-      } else {
-        this.hasAccount = true;
-        this.isLoggedIn = true;
-        this.$bvToast.toast("Success", {
-          title: "Has ingresado a tu cuenta correctamente",
-          variant: "success",
-          solid: true,
-        });
-        if (this.$route.name !== "home") {
-          this.$router.push("/");
-        }
-      }
     },
     async createAccount(form) {
       const userName = this.users.find((user) => user.user === form.user);
@@ -237,19 +195,19 @@ export default {
         });
       }
     },
-    async getOrders() {
-      try {
-        this.orders = await apiServices.getOrders(this.user.id);
-      } catch (err) {
-        console.log(err);
-        this.$bvToast.toast("Error", {
-          title: `No pudimos recuperar tu lista de ordenes, vuelve a intentarlo`,
-          variant: "danger",
-          solid: true,
-          noAutoHide: true,
-        });
-      }
-    },
+    // async getOrders() {
+    //   try {
+    //     this.orders = await apiServices.getOrders(this.user.id);
+    //   } catch (err) {
+    //     console.log(err);
+    //     this.$bvToast.toast("Error", {
+    //       title: `No pudimos recuperar tu lista de ordenes, vuelve a intentarlo`,
+    //       variant: "danger",
+    //       solid: true,
+    //       noAutoHide: true,
+    //     });
+    //   }
+    // },
     async updateProduct(product) {
       const productUpdated = this.products.find((p) => p.id === product.id);
       const index = this.products.indexOf(productUpdated);

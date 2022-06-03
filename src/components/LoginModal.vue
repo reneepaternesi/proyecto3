@@ -259,7 +259,7 @@
         size="sm"
         variant="primary"
         :disabled="!validateForm()"
-        @click="onSubmit()"
+        @click.prevent="onSubmit()"
       >
         {{ loginView ? "Login" : "Crear Cuenta" }}
       </b-button>
@@ -270,12 +270,10 @@
   </b-modal>
 </template>
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   name: "LoginModal",
-  props: {
-    isLoggedIn: Boolean,
-    hasAccount: Boolean,
-  },
   data() {
     return {
       form: {
@@ -328,9 +326,30 @@ export default {
     };
   },
   methods: {
+    ...mapActions(["logIn"]),
+    ...mapActions(["addUser"]),
+    logIn() {
+      this.logIn(this.form);
+      if (!this.user) {
+        this.$bvToast.toast("Info", {
+          title: "No existe cuenta para ese usuario y contraseña. Crea una!",
+          variant: "info",
+          solid: true,
+        });
+      } else {
+        this.$bvToast.toast("Success", {
+          title: "Has ingresado a tu cuenta correctamente",
+          variant: "success",
+          solid: true,
+        });
+        if (this.$route.name !== "home") {
+          this.$router.push("/");
+        }
+      }
+    },
     onSubmit() {
       if (this.loginView) {
-        this.$emit("log-in", this.form);
+        this.logIn();
       } else {
         this.$emit("create-account", this.form);
       }
@@ -384,6 +403,11 @@ export default {
     toogleLoginView(value) {
       this.loginView = value;
     },
+  },
+  computed: {
+    ...mapGetters(["user"]),
+    ...mapGetters(["isLoggedIn"]),
+    ...mapGetters(["hasAccount"]),
   },
 };
 </script>
