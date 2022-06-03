@@ -5,8 +5,8 @@
         <img class="w-100" :src="productToCart.img" />
       </div>
       <div class="col-6">
-        <h1 class="title" v-show="!isAdmin">{{ productToCart.name }}</h1>
-        <div v-show="isAdmin" class="admin-section">
+        <h1 class="title" v-show="!user.isAdmin">{{ productToCart.name }}</h1>
+        <div v-show="user.isAdmin" class="admin-section">
           <div class="text-left font-weight-bold">Nombre del Producto:</div>
           <b-form-input
             v-model="productToSave.name"
@@ -21,7 +21,7 @@
             El nombre debe contener al menos 2 caracteres
           </b-form-invalid-feedback>
         </div>
-        <div v-show="isAdmin" class="admin-section">
+        <div v-show="user.isAdmin" class="admin-section">
           <div class="text-left font-weight-bold">Imagen del Producto:</div>
           <b-form-input
             v-model="productToSave.img"
@@ -36,10 +36,10 @@
             El nombre debe contener al menos 2 caracteres
           </b-form-invalid-feedback>
         </div>
-        <p v-show="!isAdmin" class="description">
+        <p v-show="!user.isAdmin" class="description">
           {{ productToCart.description }}
         </p>
-        <div v-show="isAdmin" class="admin-section">
+        <div v-show="user.isAdmin" class="admin-section">
           <div class="text-left font-weight-bold">
             Descripción del Producto:
           </div>
@@ -61,9 +61,9 @@
         </div>
         <p class="text-left">
           <strong>Cantidad Disponible: </strong
-          ><span v-show="!isAdmin">{{ productToCart.stock }}</span>
+          ><span v-show="!user.isAdmin">{{ productToCart.stock }}</span>
           <b-form-input
-            v-show="isAdmin"
+            v-show="user.isAdmin"
             v-model="productToSave.stock"
             type="number"
             v-bind:class="{
@@ -82,10 +82,10 @@
             <b-table striped hover :items="sizes"></b-table>
           </div>
           <div class="col-6">
-            <div class="price" v-show="!isAdmin">
+            <div class="price" v-show="!user.isAdmin">
               Precio: {{ getCurrency(productToCart.price) }}
             </div>
-            <div v-show="isAdmin" class="admin-section">
+            <div v-show="user.isAdmin" class="admin-section">
               <div class="text-left font-weight-bold">Precio del Producto:</div>
               <b-form-input
                 v-model="productToSave.price"
@@ -110,7 +110,7 @@
             >
             </b-form-select>
             <b-button
-              v-show="!isAdmin"
+              v-show="!user.isAdmin"
               class="add-to-cart shadow"
               type="submit"
               :disabled="!validPurchase()"
@@ -124,7 +124,7 @@
             >
             <br /><br />
             <b-button
-              v-show="isAdmin"
+              v-show="user.isAdmin"
               class="add-to-cart shadow"
               type="submit"
               :disabled="!validChanges()"
@@ -143,9 +143,6 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "ProductView",
-  props: {
-    isAdmin: Boolean,
-  },
   data: () => ({
     productToCart: {},
     productToSave: {},
@@ -208,6 +205,7 @@ export default {
   },
   computed: {
     ...mapGetters(["productById"]),
+    ...mapGetters(["user"]),
     product() {
       return this.productById(this.$route.params.id);
     },
@@ -216,7 +214,7 @@ export default {
     this.productToCart = this.product;
     this.productToCart.size = 35;
     this.productToCart.quantity = 0;
-    if (this.isAdmin) {
+    if (this.user.isAdmin) {
       this.productToSave = this.product;
     }
   },
