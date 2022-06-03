@@ -35,7 +35,6 @@ export default {
   }),
   components: { NavBar, CartModal, LoginModal },
   mounted() {
-    this.getProducts();
     this.getUsers();
     this.getCart();
   },
@@ -44,19 +43,6 @@ export default {
   },
   methods: {
     ...mapActions(["logIn"]),
-    async getProducts() {
-      try {
-        this.products = await apiServices.getProducts();
-      } catch (err) {
-        console.log(err);
-        this.$bvToast.toast("Error", {
-          title: `No pudimos recuperar la lista de productos, vuelve a intentarlo`,
-          variant: "danger",
-          solid: true,
-          noAutoHide: true,
-        });
-      }
-    },
     async getUsers() {
       try {
         this.users = await apiServices.getUsers();
@@ -195,19 +181,6 @@ export default {
         });
       }
     },
-    // async getOrders() {
-    //   try {
-    //     this.orders = await apiServices.getOrders(this.user.id);
-    //   } catch (err) {
-    //     console.log(err);
-    //     this.$bvToast.toast("Error", {
-    //       title: `No pudimos recuperar tu lista de ordenes, vuelve a intentarlo`,
-    //       variant: "danger",
-    //       solid: true,
-    //       noAutoHide: true,
-    //     });
-    //   }
-    // },
     async updateProduct(product) {
       const productUpdated = this.products.find((p) => p.id === product.id);
       const index = this.products.indexOf(productUpdated);
