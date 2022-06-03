@@ -12,11 +12,11 @@
         <b-nav-item>
           <router-link class="button" to="/nosotros"> Nosotros</router-link>
         </b-nav-item>
-        <b-nav-item v-show="!isLoggedIn">
+        <b-nav-item v-show="isEmpty(user)">
           <a v-b-modal.login variant="outline-primary"> Login </a>
         </b-nav-item>
         <b-nav-item-dropdown
-          v-show="isLoggedIn && !user.isAdmin"
+          v-show="!isEmpty(user)"
           id="user-dropdown"
           :text="user.name"
           toggle-class="nav-link-custom"
@@ -27,21 +27,7 @@
               Mis Órdenes</router-link
             ></b-dropdown-item
           >
-          <b-dropdown-item @click="logOut()">Cerrar Sesión</b-dropdown-item>
-        </b-nav-item-dropdown>
-        <b-nav-item-dropdown
-          v-show="isLoggedIn && user.isAdmin"
-          id="user-dropdown"
-          :text="user.name"
-          toggle-class="nav-link-custom"
-          right
-        >
-          <b-dropdown-item
-            ><router-link class="button" to="/orders">
-              Mis Órdenes</router-link
-            ></b-dropdown-item
-          >
-          <b-dropdown-item @click="logOut()">Cerrar Sesión</b-dropdown-item>
+          <b-dropdown-item @click="logOutUser()">Cerrar Sesión</b-dropdown-item>
         </b-nav-item-dropdown>
       </b-nav>
     </div>
@@ -49,31 +35,29 @@
       v-b-modal.cart
       variant="outline-primary position-absolute"
       class="cart-btn"
-      :disabled="itemsAdded === 0"
-      ><img src="/assets/cart.png" width="30" /> ( {{ itemsAdded }} )
+      :disabled="getItemsAdded === 0"
+      ><img src="/assets/cart.png" width="30" /> ( {{ getItemsAdded }} )
     </b-button>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   name: "NavBar",
-  props: {
-    itemsAdded: {
-      type: Number,
-      default: 0,
-    },
-    user: Object,
-  },
   methods: {
-    logOut() {
-      this.$emit("log-out");
+    ...mapActions(["logOut"]),
+    logOutUser() {
+      this.logOut();
+      if (this.$route.name !== "home") {
+        this.$router.push("/");
+      }
     },
   },
   computed: {
-    isLoggedIn() {
-      return Object.keys(this.user).length !== 0;
-    },
+    ...mapGetters(["getItemsAdded"]),
+    ...mapGetters(["user"]),
   },
 };
 </script>

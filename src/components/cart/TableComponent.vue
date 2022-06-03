@@ -29,26 +29,21 @@
 </template>
 
 <script>
-import { Product } from "../../models/product";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "TableComponent",
-  props: {
-    cart: {
-      type: Array[Product],
-      required: true,
-    },
-  },
   methods: {
+    ...mapActions(["removeFromCart"]),
     getTotal() {
       var total = this.cart.reduce(function (res, item) {
         return res + item.price * item.quantity;
       }, 0);
       return this.getCurrency(total);
     },
-    removeFromCart(productId) {
-      this.$emit("remove-from-cart", productId);
-    },
+  },
+  computed: {
+    ...mapGetters(["cart"]),
   },
 };
 </script>

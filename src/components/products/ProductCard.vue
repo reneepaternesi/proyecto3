@@ -16,13 +16,14 @@
           {{ getCurrency(product.price) }}
         </b-card-text>
         <router-link
+          v-show="product.id !== 'agregar-producto'"
           class="btn shadow add-to-cart"
           :to="{ name: 'product', params: { id: product.id, product } }"
         >
           Ver Producto
         </router-link>
         <b-button
-          v-show="this.user.isAdmin"
+          v-show="user.isAdmin && product.id !== 'agregar-producto'"
           class="add-to-cart shadow"
           href="#"
           @click="deleteProduct(product.id)"
@@ -35,7 +36,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ProductCard",
@@ -43,9 +44,7 @@ export default {
     product: {},
   },
   methods: {
-    deleteProduct(id) {
-      this.$emit("delete-product", id);
-    },
+    ...mapActions(["deleteProduct"]),
   },
   computed: {
     ...mapGetters(["user"]),
@@ -63,6 +62,8 @@ export default {
     }
 
     .card-body {
+      min-height: 146px;
+
       .card-title {
         text-transform: uppercase;
         font-weight: bold;

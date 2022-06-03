@@ -12,6 +12,9 @@ export default {
         return o.talle;
       });
       return [ { text: "Seleccione talle", value: null }, ...sizesList];
-      }
+    },
+    isEmpty(obj) {
+      return Object.keys(obj).length === 0
     }
+  }
 }

@@ -11,8 +11,6 @@ export default new Vuex.Store({
         products: [],
         orders: [],
         cart: [],
-        isLoggedIn: false,
-        hasAccount: true,
         user: {},
     },
     getters: {
@@ -20,8 +18,6 @@ export default new Vuex.Store({
         products: state => state.products,
         orders: state => state.orders,
         cart: state => state.cart,
-        isLoggedIn: state => state.isLoggedIn,
-        hasAccount: state => state.hasAccount,
         user: state => state.user,
         getItemsAdded(state) {
             var totalItems = state.cart.reduce(function (res, item) {
@@ -31,11 +27,6 @@ export default new Vuex.Store({
         },
         getUserByName(state, userName) {
             return  state.users.find((user) => user.user === userName);
-        },
-        getUserByUserAndPass(state, userName, pass) {
-            return state.users.find(
-                (user) => user.user === userName && user.password === pass
-            );
         },
         productById: state => id => {
             return state.products.find(product => product.id == id)
@@ -54,18 +45,12 @@ export default new Vuex.Store({
         SET_CART(state, cart) {
             state.cart = cart
         },
-        SET_IS_LOGGEDIN(state, isLoggedIn) {
-            state.isLoggedIn = isLoggedIn
-        },
-        SET_HAS_ACCOUNT(state, hasAccount) {
-            state.hasAccount = hasAccount
-        },
         SET_USER(state, user) {
             state.user = user
         },
         UPDATE_PRODUCT(state, product) {
             const productUpdated = state.products.find((p) => p.id === product.id);
-            const index = this.products.indexOf(productUpdated);
+            const index = state.products.indexOf(productUpdated);
             state.products[index] = product
         },
         ADD_PRODUCT(state, newProduct) {
@@ -94,34 +79,30 @@ export default new Vuex.Store({
                 });
               }
         },
-
+        ADD_CART_QTY(state, productId) {
+            const productInCart = state.cart.find(
+                (product) => product.id === productId
+            );
+            productInCart.quantity++;
+        },
+        ADD_TO_CART(state, product) {
+            state.cart.push(product)
+        },
         ADD_USER(state, newUser) {
             state.user = newUser
-            state.hasAccount = true;
-            state.isLoggedIn = true;
         },
         LOG_OUT(state) {
             state.user = {};
-            state.isLoggedIn = false;
-        },
-        LOG_IN(state, user) {
-            state.user = {};
-            state.isLoggedIn = false;
-            state.hasAccount = false;
-            const existingUser = state.getUserByUserAndPass(state, user.user, user.password)
-            if (existingUser) {
-                state.user = existingUser;
-                state.isLoggedIn = true;
-                state.hasAccount = true;
-            }
-        },
-
+        }
     },
     actions: {
         getUsers: ({ commit }) => {
             apiServices.getUsers()
               .then(users => commit('SET_USERS', users))
               .catch(err => console.log(err))
+        },
+        setUser: ({ commit }, user) => {
+            commit('SET_USER', user)
         },
         addUser: ({ commit }, user) => {
             apiServices.saveUser(user)
@@ -139,7 +120,7 @@ export default new Vuex.Store({
                 .catch(err => console.log(err))
         },
         addProduct: ({ commit }, product) => {
-            apiServices.addProduct(product)
+            apiServices.saveProduct(product)
                 .then(newProduct => commit('ADD_PRODUCT', newProduct))
                 .catch(err => console.log(err))
         },
@@ -154,22 +135,24 @@ export default new Vuex.Store({
               .catch(err => console.log(err))
         },
         addOrder: ({ commit }, order) => {
-            apiServices.addOrder(order)
+            apiServices.saveOrder(order)
                 .then(newOrder => commit('ADD_ORDER', newOrder))
                 .catch(err => console.log(err))
         },
-        getCart: ({commit}) => {
-            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        setCart: ({commit}, cart) => {
             commit('SET_CART', cart)
         },
         removeFromCart: ({ commit }, productId) => {
             commit('REMOVE_FROM_CART', productId)
         },
+        addCartQty: ({ commit }, productId) => {
+            commit('ADD_CART_QTY', productId)
+        },
+        addToCart: ({ commit }, product) => {
+            commit('ADD_TO_CART', product)
+        },
         logOut: ({ commit }) => {
             commit('LOG_OUT')
-        },
-        logIn: ({ commit, user }) => {
-            commit('LOG_IN', user)
         }
       }
 })

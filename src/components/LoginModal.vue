@@ -274,6 +274,9 @@ import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "LoginModal",
+  async created() {
+    await this.getUsers();
+  },
   data() {
     return {
       form: {
@@ -326,17 +329,22 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["logIn"]),
+    ...mapActions(["getUsers"]),
+    ...mapActions(["setUser"]),
     ...mapActions(["addUser"]),
     logIn() {
-      this.logIn(this.form);
-      if (!this.user) {
+      const user = this.users.find(
+        (user) =>
+          user.user === this.form.user && user.password === this.form.password
+      );
+      if (!user) {
         this.$bvToast.toast("Info", {
           title: "No existe cuenta para ese usuario y contraseña. Crea una!",
           variant: "info",
           solid: true,
         });
       } else {
+        this.setUser(user);
         this.$bvToast.toast("Success", {
           title: "Has ingresado a tu cuenta correctamente",
           variant: "success",
@@ -347,11 +355,27 @@ export default {
         }
       }
     },
-    onSubmit() {
+    async onSubmit() {
       if (this.loginView) {
         this.logIn();
       } else {
-        this.$emit("create-account", this.form);
+        await this.addUser(this.form)
+          .then(
+            this.$bvToast.toast("Success", {
+              title: "Hemos creado tu cuenta correctamente",
+              variant: "success",
+              solid: true,
+            })
+          )
+          .catch((err) => {
+            console.log(err);
+            this.$bvToast.toast("Error", {
+              title: `No pudimos crear tu cuenta, vuelve a intentarlo`,
+              variant: "danger",
+              solid: true,
+              noAutoHide: true,
+            });
+          });
       }
       this.resetForm();
       this.$refs["login-modal"].hide();
@@ -405,9 +429,8 @@ export default {
     },
   },
   computed: {
+    ...mapGetters(["users"]),
     ...mapGetters(["user"]),
-    ...mapGetters(["isLoggedIn"]),
-    ...mapGetters(["hasAccount"]),
   },
 };
 </script>

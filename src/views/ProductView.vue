@@ -114,12 +114,9 @@
               class="add-to-cart shadow"
               type="submit"
               :disabled="!validPurchase()"
-              @click="addToCart"
+              @click="addProductToCart"
               >{{
-                productToCart.stock === 0 ||
-                productToCart.quantity === productToCart.stock
-                  ? "No Disponible"
-                  : "Comprar"
+                productToCart.stock === 0 ? "No Disponible" : "Comprar"
               }}</b-button
             >
             <br /><br />
@@ -128,7 +125,7 @@
               class="add-to-cart shadow"
               type="submit"
               :disabled="!validChanges()"
-              @click="updateProduct"
+              @click="saveUpdateProduct"
               >Actualizar Producto</b-button
             >
           </div>
@@ -139,7 +136,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ProductView",
@@ -153,6 +150,16 @@ export default {
       priceBlured: false,
       imgBlured: false,
     },
+    newProduct: {
+      id: "agregar-producto",
+      name: "Nombre del Producto",
+      price: 0,
+      stock: 0,
+      description: "Descripción del Producto",
+      quantity: 0,
+      size: 35,
+      img: "https://i.imgur.com/4lw1ETN.png",
+    },
     sizes: [
       { talle: 35, largo: 22.8 },
       { talle: 36, largo: 23.5 },
@@ -164,6 +171,11 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions(["addProduct"]),
+    ...mapActions(["updateProduct"]),
+    ...mapActions(["addCartQty"]),
+    ...mapActions(["addToCart"]),
+
     resetStatus() {
       this.productToSaveStatus.nameBlured = false;
       this.productToSaveStatus.descriptionBlured = false;
@@ -183,8 +195,34 @@ export default {
     validNumber(price) {
       return price > 0;
     },
-    addToCart() {
-      this.$emit("add-to-cart", this.productToCart);
+    addProductToCart() {
+      const productInCart = this.cart.find(
+        (product) => product.id === this.product.id
+      );
+
+      if (productInCart) {
+        if (productInCart.quantity < productInCart.stock) {
+          this.addCartQty(productInCart.id);
+        } else {
+          this.$bvToast.toast("Error", {
+            title: "Has alcanzado la cantidad máxima de producto disponible",
+            variant: "danger",
+            solid: true,
+          });
+          return;
+        }
+      } else {
+        this.addToCart({
+          ...this.productToCart,
+          quantity: 1,
+        });
+      }
+      this.$bvToast.toast("Success", {
+        title: "Ya agregamos el producto al carrito ✨",
+        variant: "success",
+        solid: true,
+      });
+      localStorage.setItem("cart", JSON.stringify(this.cart));
     },
     validChanges() {
       return (
@@ -195,28 +233,64 @@ export default {
         this.validNumber(this.productToSave.stock)
       );
     },
-    updateProduct() {
+    async saveUpdateProduct() {
       if (this.productToSave.id === "agregar-producto") {
-        this.$emit("add-product", this.productToSave);
+        await this.addProduct(this.productToSave)
+          .then(
+            this.$bvToast.toast("Success", {
+              title: "El producto ha sido creado correctamente",
+              variant: "success",
+              solid: true,
+            })
+          )
+          .catch((err) => {
+            console.log(err);
+            this.$bvToast.toast("Error", {
+              title: `No pudimos guardar el nuevo producto, vuelve a intentarlo`,
+              variant: "danger",
+              solid: true,
+              noAutoHide: true,
+            });
+          });
       } else {
-        this.$emit("update-product", this.productToSave);
+        await this.updateProduct(this.productToSave)
+          .then(
+            this.$bvToast.toast("Success", {
+              title: "El producto ha sido actualizado correctamente",
+              variant: "success",
+              solid: true,
+            })
+          )
+          .catch((err) => {
+            console.log(err);
+            this.$bvToast.toast("Error", {
+              title: `No pudimos actualizar el producto, vuelve a intentarlo`,
+              variant: "danger",
+              solid: true,
+              noAutoHide: true,
+            });
+          });
       }
     },
   },
   computed: {
     ...mapGetters(["productById"]),
     ...mapGetters(["user"]),
+    ...mapGetters(["cart"]),
     product() {
       return this.productById(this.$route.params.id);
     },
   },
   mounted() {
-    this.productToCart = this.product;
+    if (!this.product) {
+      this.productToCart = this.newProduct;
+      this.productToSave = this.newProduct;
+    } else {
+      this.productToCart = this.product;
+      this.productToSave = JSON.parse(JSON.stringify(this.product));
+    }
     this.productToCart.size = 35;
     this.productToCart.quantity = 0;
-    if (this.user.isAdmin) {
-      this.productToSave = this.product;
-    }
   },
 };
 </script>

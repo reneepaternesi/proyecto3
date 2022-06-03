@@ -39,16 +39,7 @@ import { mapGetters, mapActions } from "vuex";
 export default {
   name: "OrdersView",
   async created() {
-    await this.getOrders(this.user.id)
-      .then()
-      .catch(
-        this.$bvToast.toast("Error", {
-          title: `No pudimos recuperar tu lista de ordenes, vuelve a intentarlo`,
-          variant: "danger",
-          solid: true,
-          noAutoHide: true,
-        })
-      );
+    await this.getOrders(this.user.id);
   },
   methods: {
     ...mapActions(["getOrders"]),

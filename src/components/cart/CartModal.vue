@@ -7,9 +7,19 @@
     hide-header-close
     ref="cart-modal"
   >
-    <TableComponent :cart="cart" @remove-from-cart="removeFromCart" />
+    <TableComponent />
+    <br />
+    <br />
+    <div v-show="isEmpty(user)">
+      Accede a tu cuenta para finalizar tu compra
+    </div>
     <template #modal-footer="{ cancel }">
-      <b-button size="sm" variant="success" @click="createOrder()">
+      <b-button
+        size="sm"
+        variant="success"
+        @click="createOrder()"
+        :disabled="isEmpty(user)"
+      >
         Confirmar Compra
       </b-button>
       <b-button size="sm" variant="secondary" @click="cancel()">
@@ -20,26 +30,53 @@
 </template>
 
 <script>
-import { Product } from "../../models/product";
 import TableComponent from "./TableComponent.vue";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "CartModal",
   components: { TableComponent },
-  props: {
-    cart: {
-      type: Array[Product],
-      required: true,
-    },
-  },
   methods: {
-    removeFromCart(productId) {
-      this.$emit("remove-from-cart", productId);
-    },
-    createOrder() {
-      this.$emit("create-order", this.cart);
+    ...mapActions(["addOrder"]),
+    ...mapActions(["setCart"]),
+
+    async createOrder() {
+      const order = {
+        products: this.cart,
+        userId: this.user.id,
+        date: new Date(),
+        total: this.cart.reduce(
+          (accumulator, current) =>
+            accumulator + current.price * current.quantity,
+          0
+        ),
+      };
+      await this.addOrder(order)
+        .then(() => {
+          this.$bvToast.toast("Success", {
+            title:
+              "Tu orden ha sido creada correctamente. Ya estamos trabajando en ella!",
+            variant: "success",
+            solid: true,
+          });
+          this.setCart([]);
+          localStorage.removeItem("cart");
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$bvToast.toast("Error", {
+            title: `No pudimos crear tu orden, vuelve a intentarlo`,
+            variant: "danger",
+            solid: true,
+            noAutoHide: true,
+          });
+        });
       this.$refs["cart-modal"].hide();
     },
+  },
+  computed: {
+    ...mapGetters(["cart"]),
+    ...mapGetters(["user"]),
   },
 };
 </script>
