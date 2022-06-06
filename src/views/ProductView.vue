@@ -171,10 +171,8 @@ export default {
     ],
   }),
   methods: {
-    ...mapActions(["addProduct"]),
-    ...mapActions(["updateProduct"]),
-    ...mapActions(["addCartQty"]),
-    ...mapActions(["addToCart"]),
+    ...mapActions(["addProduct", "updateProduct"]),
+    ...mapActions("cart", ["addCartQty", "addToCart"]),
 
     resetStatus() {
       this.productToSaveStatus.nameBlured = false;
@@ -275,8 +273,8 @@ export default {
   },
   computed: {
     ...mapGetters(["productById"]),
-    ...mapGetters(["user"]),
-    ...mapGetters(["cart"]),
+    ...mapGetters("users", ["user"]),
+    ...mapGetters("cart", ["cart"]),
     product() {
       return this.productById(this.$route.params.id);
     },

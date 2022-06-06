@@ -23,7 +23,7 @@
           right
         >
           <b-dropdown-item
-            ><router-link class="button" to="/orders">
+            ><router-link class="button" to="/orders" v-show="!user.isAdmin">
               Mis Órdenes</router-link
             ></b-dropdown-item
           >
@@ -35,7 +35,7 @@
       v-b-modal.cart
       variant="outline-primary position-absolute"
       class="cart-btn"
-      :disabled="getItemsAdded === 0"
+      :disabled="getItemsAdded === 0 || user.isAdmin"
       ><img src="/assets/cart.png" width="30" /> ( {{ getItemsAdded }} )
     </b-button>
   </div>
@@ -47,7 +47,7 @@ import { mapGetters, mapActions } from "vuex";
 export default {
   name: "NavBar",
   methods: {
-    ...mapActions(["logOut"]),
+    ...mapActions("users", ["logOut"]),
     logOutUser() {
       this.logOut();
       if (this.$route.name !== "home") {
@@ -56,8 +56,8 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["getItemsAdded"]),
-    ...mapGetters(["user"]),
+    ...mapGetters("cart", ["getItemsAdded"]),
+    ...mapGetters("users", ["user"]),
   },
 };
 </script>

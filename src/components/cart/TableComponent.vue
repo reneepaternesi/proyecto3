@@ -1,12 +1,13 @@
 <template>
   <div>
     <div v-show="cart.length > 0">
-      <table class="table">
+      <table class="table b-table table-striped table-hover">
         <thead>
           <tr>
             <th>Producto</th>
             <th>Cantidad</th>
             <th>Precio</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -34,7 +35,7 @@ import { mapGetters, mapActions } from "vuex";
 export default {
   name: "TableComponent",
   methods: {
-    ...mapActions(["removeFromCart"]),
+    ...mapActions("cart", ["removeFromCart"]),
     getTotal() {
       var total = this.cart.reduce(function (res, item) {
         return res + item.price * item.quantity;
@@ -43,7 +44,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["cart"]),
+    ...mapGetters("cart", ["cart"]),
   },
 };
 </script>

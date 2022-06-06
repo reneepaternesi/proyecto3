@@ -43,11 +43,11 @@ export default {
     await this.getOrders(this.user.id);
   },
   methods: {
-    ...mapActions(["getOrders"]),
+    ...mapActions("cart", ["getOrders"]),
   },
   computed: {
-    ...mapGetters(["orders"]),
-    ...mapGetters(["user"]),
+    ...mapGetters("cart", ["orders"]),
+    ...mapGetters("users", ["user"]),
   },
 };
 </script>

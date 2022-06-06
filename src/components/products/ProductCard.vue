@@ -47,7 +47,7 @@ export default {
     ...mapActions(["deleteProduct"]),
   },
   computed: {
-    ...mapGetters(["user"]),
+    ...mapGetters("users", ["user"]),
   },
 };
 </script>

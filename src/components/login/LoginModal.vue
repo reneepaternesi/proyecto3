@@ -274,7 +274,7 @@ import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "LoginModal",
-  async created() {
+  async mounted() {
     await this.getUsers();
   },
   data() {
@@ -329,9 +329,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["getUsers"]),
-    ...mapActions(["setUser"]),
-    ...mapActions(["addUser"]),
+    ...mapActions("users", ["getUsers", "setUser", "addUser"]),
     logIn() {
       const user = this.users.find(
         (user) =>
@@ -350,6 +348,7 @@ export default {
           variant: "success",
           solid: true,
         });
+
         if (this.$route.name !== "home") {
           this.$router.push("/");
         }
@@ -429,8 +428,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["users"]),
-    ...mapGetters(["user"]),
+    ...mapGetters("users", ["users"]),
   },
 };
 </script>

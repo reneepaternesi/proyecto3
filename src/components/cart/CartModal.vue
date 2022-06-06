@@ -18,7 +18,7 @@
         size="sm"
         variant="success"
         @click="createOrder()"
-        :disabled="isEmpty(user)"
+        :disabled="isEmpty(user) || cart.length === 0"
       >
         Confirmar Compra
       </b-button>
@@ -37,8 +37,7 @@ export default {
   name: "CartModal",
   components: { TableComponent },
   methods: {
-    ...mapActions(["addOrder"]),
-    ...mapActions(["setCart"]),
+    ...mapActions("cart", ["addOrder", "setCart"]),
 
     async createOrder() {
       const order = {
@@ -75,8 +74,8 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["cart"]),
-    ...mapGetters(["user"]),
+    ...mapGetters("cart", ["cart"]),
+    ...mapGetters("users", ["user"]),
   },
 };
 </script>

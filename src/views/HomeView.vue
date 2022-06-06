@@ -39,12 +39,11 @@ export default {
     addProduct() {
       this.addProduct(this.newProduct);
     },
-    ...mapActions(["getProducts"]),
-    ...mapActions(["addProduct"]),
+    ...mapActions(["getProducts", "addProduct"]),
   },
   computed: {
     ...mapGetters(["products"]),
-    ...mapGetters(["user"]),
+    ...mapGetters("users", ["user"]),
   },
 };
 </script>

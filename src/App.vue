@@ -10,15 +10,14 @@
 <script>
 import NavBar from "./components/NavBar.vue";
 import CartModal from "./components/cart/CartModal.vue";
-import LoginModal from "./components/LoginModal.vue";
+import LoginModal from "./components/login/LoginModal.vue";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "App",
-
   components: { NavBar, CartModal, LoginModal },
   methods: {
-    ...mapActions(["setCart"]),
+    ...mapActions("cart", ["setCart"]),
     getCart() {
       this.setCart(JSON.parse(localStorage.getItem("cart")) || []);
     },
@@ -27,8 +26,8 @@ export default {
     this.getCart();
   },
   computed: {
-    ...mapGetters(["user"]),
-    ...mapGetters(["cart"]),
+    ...mapGetters("users", ["user"]),
+    ...mapGetters("cart", ["cart"]),
   },
 };
 </script>
