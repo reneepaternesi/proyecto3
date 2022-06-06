@@ -274,7 +274,7 @@ import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "LoginModal",
-  async mounted() {
+  async updated() {
     await this.getUsers();
   },
   data() {
