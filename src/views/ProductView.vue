@@ -1,5 +1,5 @@
 <template>
-  <b-container class="product-layout p-5" v-if="product">
+  <b-container class="product-layout p-5" v-if="productToCart || productToSave">
     <b-row class="justify-content-center">
       <div class="col-6">
         <img class="w-100" :src="productToCart.img" />
