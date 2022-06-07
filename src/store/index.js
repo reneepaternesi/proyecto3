@@ -38,7 +38,6 @@ export default new Vuex.Store({
                 1
             );
         }
-
     },
     actions: {
         getProducts: ({ commit }) => {
@@ -60,9 +59,7 @@ export default new Vuex.Store({
             apiServices.deleteProduct(productId)
                 .then(commit('DELETE_PRODUCT', productId))
                 .catch(err => console.log(err))
-        },
-        
-
+        }
     },
     modules: {
         users,

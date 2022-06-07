@@ -13,6 +13,15 @@ const apiServices = {
     }
   },
 
+  getProductById: async (productId) => {
+    try {
+      const res = await axios.get(apiUrl + `/products/${productId}`);
+      return res.data;
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
   saveProduct: async (product) => {
     try {
       const res = await axios.post(apiUrl + '/products', product);

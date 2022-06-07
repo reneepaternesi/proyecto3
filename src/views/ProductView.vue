@@ -1,5 +1,5 @@
 <template>
-  <b-container class="product-layout p-5">
+  <b-container class="product-layout p-5" v-if="product">
     <b-row class="justify-content-center">
       <div class="col-6">
         <img class="w-100" :src="productToCart.img" />
@@ -137,9 +137,13 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import apiServices from "../services/services";
 
 export default {
   name: "ProductView",
+  created() {
+    this.getProduct();
+  },
   data: () => ({
     productToCart: {},
     productToSave: {},
@@ -173,7 +177,6 @@ export default {
   methods: {
     ...mapActions(["addProduct", "updateProduct"]),
     ...mapActions("cart", ["addCartQty", "addToCart"]),
-
     resetStatus() {
       this.productToSaveStatus.nameBlured = false;
       this.productToSaveStatus.descriptionBlured = false;
@@ -197,7 +200,6 @@ export default {
       const productInCart = this.cart.find(
         (product) => product.id === this.product.id
       );
-
       if (productInCart) {
         if (productInCart.quantity < productInCart.stock) {
           this.addCartQty(productInCart.id);
@@ -270,51 +272,56 @@ export default {
           });
       }
     },
+    async getProduct() {
+      if (this.$route.params.id === "agregar-producto") {
+        this.product = this.newProduct;
+        this.productToCart = this.newProduct;
+        this.productToSave = this.newProduct;
+      } else {
+        this.product = this.productById(this.$route.params.id);
+
+        if (!this.product) {
+          this.product = await apiServices.getProductById(
+            this.$route.params.id
+          );
+        }
+        this.productToCart = this.product;
+        this.productToSave = JSON.parse(JSON.stringify(this.product));
+      }
+    },
   },
   computed: {
     ...mapGetters(["productById"]),
     ...mapGetters("users", ["user"]),
     ...mapGetters("cart", ["cart"]),
-    product() {
-      return this.productById(this.$route.params.id);
-    },
   },
   mounted() {
     if (!this.product) {
-      this.productToCart = this.newProduct;
-      this.productToSave = this.newProduct;
-    } else {
-      this.productToCart = this.product;
-      this.productToSave = JSON.parse(JSON.stringify(this.product));
+      this.product = this.getProduct();
     }
     this.productToCart.size = 35;
     this.productToCart.quantity = 0;
   },
 };
 </script>
-
 <style scoped lang="less">
 .title {
   text-shadow: 2px 2px 8px #6c757d;
   font-size: 50px;
   margin-bottom: 20px;
 }
-
 .description {
   text-align: justify;
 }
-
 .price {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 20px;
 }
-
 .sizes {
   padding: 0 15px;
   margin-bottom: 20px;
 }
-
 .admin-section {
   margin-bottom: 20px;
 }
